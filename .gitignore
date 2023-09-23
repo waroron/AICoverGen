@@ -1,6 +1,10 @@
 # MDX Models
 mdxnet_models/*.onnx
 
+*.mp3
+*.wav
+*.pth
+
 # RVC Models
 rvc_models/*/*.pth
 rvc_models/*/*.index

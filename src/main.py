@@ -63,7 +63,7 @@ def get_youtube_video_id(url, ignore_playlist=True):
 
 def yt_download(link):
     os.makedirs(song_dir, exist_ok=True)
-    song_path = os.path.join(song_dir, '%(title)s.mp3')
+    song_path = os.path.join(song_dir, '%(title)s')
     ydl_opts = {
         'format': 'bestaudio',
         'outtmpl': song_path,
@@ -76,7 +76,7 @@ def yt_download(link):
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         result = ydl.extract_info(link, download=True)
-        download_path = ydl.prepare_filename(result, outtmpl=song_path)
+        download_path = ydl.prepare_filename(result, outtmpl=f"{song_path}.mp3")
 
     return download_path
 
