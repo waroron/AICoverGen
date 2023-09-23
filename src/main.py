@@ -26,6 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 mdxnet_models_dir = os.path.join(BASE_DIR, 'mdxnet_models')
 rvc_models_dir = os.path.join(BASE_DIR, 'rvc_models')
 output_dir = os.path.join(BASE_DIR, 'song_output')
+song_dir = os.path.join(BASE_DIR, 'song')
 
 
 def get_youtube_video_id(url, ignore_playlist=True):
@@ -61,9 +62,11 @@ def get_youtube_video_id(url, ignore_playlist=True):
 
 
 def yt_download(link):
+    os.makedirs(song_dir, exist_ok=True)
+    song_path = os.path.join(song_dir, '%(title)s.mp3')
     ydl_opts = {
         'format': 'bestaudio',
-        'outtmpl': '%(title)s',
+        'outtmpl': song_path,
         'nocheckcertificate': True,
         'ignoreerrors': True,
         'no_warnings': True,
@@ -73,7 +76,7 @@ def yt_download(link):
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         result = ydl.extract_info(link, download=True)
-        download_path = ydl.prepare_filename(result, outtmpl='%(title)s.mp3')
+        download_path = ydl.prepare_filename(result, outtmpl=song_path)
 
     return download_path
 
@@ -88,18 +91,25 @@ def raise_exception(error_msg, is_webui):
 def get_rvc_model(voice_model, is_webui):
     rvc_model_filename, rvc_index_filename = None, None
     model_dir = os.path.join(rvc_models_dir, voice_model)
-    for file in os.listdir(model_dir):
-        ext = os.path.splitext(file)[1]
-        if ext == '.pth':
-            rvc_model_filename = file
-        if ext == '.index':
-            rvc_index_filename = file
+    # for file in os.listdir(model_dir):
+    #     ext = os.path.splitext(file)[1]
+    #     if ext == '.pth':
+    #         rvc_model_filename = file
+    #     if ext == '.index':
+    #         rvc_index_filename = file
 
-    if rvc_model_filename is None:
+    # if rvc_model_filename is None:
+    #     error_msg = f'No model file exists in {model_dir}.'
+    #     raise_exception(error_msg, is_webui)
+
+    if not os.path.isfile(model_dir):
         error_msg = f'No model file exists in {model_dir}.'
         raise_exception(error_msg, is_webui)
-
-    return os.path.join(model_dir, rvc_model_filename), os.path.join(model_dir, rvc_index_filename) if rvc_index_filename else ''
+    
+    # rvc_index_filename = model_dir
+    
+    return model_dir, model_dir
+    # return os.path.join(model_dir, rvc_model_filename), os.path.join(model_dir, rvc_index_filename) if rvc_index_filename else ''
 
 
 def get_audio_paths(song_dir):
